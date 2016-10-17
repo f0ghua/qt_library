@@ -3,16 +3,15 @@
 /**
 
 - QGridLayout
-	- QVBoxLayout
-		- QHBoxLayout
-			- QSpacerItem
-			- QLabel
-			- QSpacerItem
-		- QLabel (Name/Version/ReleaseDate)
-		- QGroupBox (Description)
-			- QLable
-		- QGroupBox (Copy Right)
-			- QLable
+	- QHBoxLayout
+		- QSpacerItem
+		- QLabel
+		- QSpacerItem
+	- QLabel (Name/Version/ReleaseDate)
+	- QGroupBox (Description)
+		- QLable
+	- QGroupBox (Copy Right)
+		- QLable
 
  */
 AboutDialog::AboutDialog(QWidget *parent) :
@@ -82,14 +81,13 @@ AboutDialog::AboutDialog(QWidget *parent) :
 		)
 		);
 	m_gridLayoutOptInfo2->addWidget(m_labelOptInfo2, 0, 0, 1, 1);
-	//m_verticalLayout->addWidget(m_gbOptInfo2);
 	m_gridLayout->addWidget(m_gbOptInfo2);
 
 	//m_gridLayout->setColumnStretch(0, 1);
-    m_gridLayout->setRowStretch(0, 2);
-    m_gridLayout->setRowStretch(1, 1);
-    m_gridLayout->setRowStretch(1, 1);
-    m_gridLayout->setRowStretch(1, 1);
+	m_gridLayout->setRowStretch(0, 2);
+	m_gridLayout->setRowStretch(1, 1);
+	m_gridLayout->setRowStretch(1, 1);
+	m_gridLayout->setRowStretch(1, 1);
 
 	show();
 }
