@@ -19,7 +19,8 @@ AboutDialog::AboutDialog(QWidget *parent) :
 {
 	QFont font;
 	font.setPointSize(9);
-	font.setFamily(QStringLiteral("Ping Hei"));
+	//font.setFamily(QStringLiteral("Ping Hei"));
+	font.setFamily(QStringLiteral("Comic Sans MS"));
 	this->setFont(font);
 
 	setWindowModality(Qt::NonModal);
