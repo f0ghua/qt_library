@@ -6,8 +6,8 @@
 
 #define LOG_INTKEY "appCore"
 
-QAPP_LOGGING_CATEGORY(AppCore,            LOG_INTKEY QAPP_LOGGING_MARK)
-QAPP_LOGGING_CATEGORY(AppCoreTrace,       LOG_INTKEY QAPP_LOGGING_MARK_TRACE)
+QAPP_LOGGING_CATEGORY(AppCore,            LOG_INTKEY)
+QAPP_LOGGING_CATEGORY(AppCoreTrace,       LOG_INTKEY QAL_TAG_TRACE)
 
 QAtomicPointer<QAppLogging> QAppLogging::s_instance = 0;
 
@@ -107,11 +107,11 @@ void QAppLogging::setFilterRulesByLevel(LogLevel severityLevel)
 {
     QString filterRules;
 
-    filterRules += QString("*") + QAPP_LOGGING_MARK + ".debug=false\n";
-    filterRules += QString("*") + QAPP_LOGGING_MARK + ".info=false\n";
-    filterRules += QString("*") + QAPP_LOGGING_MARK + ".warning=false\n";
-    filterRules += QString("*") + QAPP_LOGGING_MARK + ".critical=false\n";
-    filterRules += QString("*") + QAPP_LOGGING_MARK + ".fatal=false\n";
+    filterRules += QString("*") + QAL_TAG_TAIL + ".debug=false\n";
+    filterRules += QString("*") + QAL_TAG_TAIL + ".info=false\n";
+    filterRules += QString("*") + QAL_TAG_TAIL + ".warning=false\n";
+    filterRules += QString("*") + QAL_TAG_TAIL + ".critical=false\n";
+    filterRules += QString("*") + QAL_TAG_TAIL + ".fatal=false\n";
 
     foreach (auto options, _registeredCategories) {
         QString &category = options.name;
@@ -125,7 +125,7 @@ void QAppLogging::setFilterRulesByLevel(LogLevel severityLevel)
             filterRules += ".debug=true\n";
         }
         if (severityLevel <= DebugLevel) {
-            if (!category.contains(QAPP_LOGGING_MARK_TRACE)) {
+            if (!category.contains(QAL_TAG_TRACE QAL_TAG_TAIL)) {
                 filterRules += category;
                 filterRules += ".debug=true\n";
             }

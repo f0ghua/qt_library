@@ -14,8 +14,8 @@ Q_DECLARE_LOGGING_CATEGORY(AppCoreTrace)
 #define QLOG_DEBUG()        qCDebug(AppCore)
 #define QLOG_TRACE()        qCDebug(AppCoreTrace)
 
-#define QAPP_LOGGING_MARK        "9527"
-#define QAPP_LOGGING_MARK_TRACE  "Trace" QAPP_LOGGING_MARK
+#define QAL_TAG_TAIL        "9527"
+#define QAL_TAG_TRACE       "Trace"
 
 //
 // This is a QAPP specific replacement for Q_LOGGING_CATEGORY. It will register
@@ -23,8 +23,8 @@ Q_DECLARE_LOGGING_CATEGORY(AppCoreTrace)
 // level has no usage here.
 //
 #define QAPP_LOGGING_CATEGORY(name, string) \
-    static QAppLoggingCategory qAppCategory ## name (string); \
-    Q_LOGGING_CATEGORY(name, string)
+    static QAppLoggingCategory qAppCategory ## name (string QAL_TAG_TAIL); \
+    Q_LOGGING_CATEGORY(name, string QAL_TAG_TAIL)
 
 #define QLOG_DEBUG() qCDebug(AppCore)
 #define QLOG_TRACE() qCDebug(AppCoreTrace)
