@@ -133,6 +133,16 @@ void QAppLogging::setLogFilePath(const QString &fileName, const QString &fileDir
     setLogFileName(fileName);
 }
 
+void QAppLogging::setOutputDest(int value)
+{
+    if (m_logFile && (!(m_outputDest & eDestFile)) &&
+        (value & eDestFile)) {
+        createLogFile();
+    }
+
+    m_outputDest = value;
+}
+
 void QAppLogging::registerCategory(const char *category, QtMsgType severityLevel)
 {
     Q_UNUSED(severityLevel);

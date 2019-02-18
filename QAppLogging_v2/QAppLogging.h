@@ -78,7 +78,7 @@ public :
 
     int outputDest() const {return m_outputDest;}
     QString logFileName() const {return m_logFileName;}
-    void setOutputDest(int value) {m_outputDest = value;}
+    void setOutputDest(int value);
     void setLogFileDir(const QString &fileDir) {m_logFileDir = fileDir;}
     void setLogFileName(const QString &fileName) {m_logFileName = fileName;}
     void setLogFilePath(const QString &fileName, const QString &fileDir = ".");
