@@ -1,8 +1,11 @@
 #include "QAppLogging.h"
 #include "windows.h"
 
+#include <QFile>
+#include <QDir>
+#include <QDateTime>
 #include <QMutex>
-#include <fstream>
+#include <QCoreApplication>
 
 #define LOG_INTKEY "appCore"
 
@@ -20,14 +23,15 @@ static void msgHandler(QtMsgType type,
     static QMutex mutex;
     QMutexLocker lock(&mutex);
 
+    QAppLogging *appLogging = QAppLogging::instance();
+    QString logMessage;
     do {
-        int destOption = QAppLogging::instance()->outputDest();
-        const QString &logFileName = QAppLogging::instance()->logFileName();
+        int destOption = appLogging->outputDest();
         if (destOption == QAppLogging::eDestNone) {
             break;
         }
 
-        QString logMessage = qFormatLogMessage(type, context, message);
+        logMessage = qFormatLogMessage(type, context, message);
         logMessage.append(QLatin1Char('\n'));
 
         if (destOption & QAppLogging::eDestSystem) {
@@ -35,21 +39,35 @@ static void msgHandler(QtMsgType type,
         }
 
         if (destOption & QAppLogging::eDestFile) {
-            static std::ofstream logFile(logFileName.toLocal8Bit().constData());
+            QFile *logFile = appLogging->logFile();
             if (logFile) {
-                logFile << qPrintable(logMessage);
+                QTextStream stream(logFile);
+                stream << qPrintable(logMessage);
+                stream.flush();
             }
         }
     } while(0);
 
-    if (type == QtFatalMsg) {
+    switch (type) {
+    case QtFatalMsg:
         abort();
+        break;
+    case QtWarningMsg:
+//        if (logMessage.contains("Cannot create children")) {
+//            asm("nop");
+//        }
+        break;
+    default:
+        break;
     }
 }
 
 QAppLogging::QAppLogging()
     : m_outputDest(eDestSystem)
-    , m_logFileName("log.txt")
+    , m_logFileDir()
+    , m_logFileName()
+    , m_maxFileSize(1024*1024*256)
+    , m_logFile(NULL)
 {
 
 }
@@ -58,6 +76,71 @@ void QAppLogging::installHandler()
 {
     g_oldMsgHandle = qInstallMessageHandler(msgHandler);
     qSetMessagePattern("[%{time yyyyMMdd h:mm:ss.zzz} %{if-debug}D%{endif}%{if-info}I%{endif}%{if-warning}W%{endif}%{if-critical}C%{endif}%{if-fatal}F%{endif}] %{file}:%{line} - %{message}");
+}
+
+bool QAppLogging::createLogFile()
+{
+    bool ret = false;
+
+    QDateTime dtmCur = QDateTime::currentDateTime();
+    QCoreApplication * app = QCoreApplication::instance();
+    QString logDir = m_logFileDir;
+    QString logFileName = m_logFileName;
+    if (logDir.isEmpty()) {
+        logDir = app->applicationDirPath() + "/log/" + dtmCur.toString("yyyy_MM");
+    }
+    QString currLogFilePath = logDir + "/";
+    QDir dir;
+    dir.mkpath(currLogFilePath);
+    if (logFileName.isEmpty()) {
+        logFileName += dtmCur.toString("yyyyMMdd_HHmmss_");
+        logFileName += app->applicationName() + QString("(%1).txt").arg(app->applicationPid());
+    } else {
+        logFileName = dtmCur.toString("yyyyMMdd_HHmmss_");
+        logFileName += m_logFileName;
+    }
+    currLogFilePath += logFileName;
+
+    static QFile s_logFile;
+    if (m_logFile) {
+        if (m_logFile->isOpen()==true)
+            m_logFile->close();
+    }
+
+    m_logFile = &s_logFile;
+    m_logFile->setFileName(currLogFilePath);
+    if (m_logFile->open(QIODevice::WriteOnly) == false) {
+        m_logFile = NULL;
+    } else {
+        ret = true;
+    }
+
+    return ret;
+}
+
+QFile *QAppLogging::logFile()
+{
+    if (!m_logFile || (m_logFile->pos() >= m_maxFileSize)) {
+        createLogFile();
+    }
+
+    return m_logFile;
+}
+
+void QAppLogging::setLogFilePath(const QString &fileName, const QString &fileDir)
+{
+    setLogFileDir(fileDir);
+    setLogFileName(fileName);
+}
+
+void QAppLogging::setOutputDest(int value)
+{
+    if (m_logFile && (!(m_outputDest & eDestFile)) &&
+        (value & eDestFile)) {
+        createLogFile();
+    }
+
+    m_outputDest = value;
 }
 
 void QAppLogging::registerCategory(const char *category, QtMsgType severityLevel)

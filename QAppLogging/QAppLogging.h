@@ -38,6 +38,8 @@ struct QAppCategoryOptions {
     bool isEnable;
 };
 
+class QFile;
+
 class QAppLogging
 {
     Q_DISABLE_COPY(QAppLogging)
@@ -76,8 +78,11 @@ public :
 
     int outputDest() const {return m_outputDest;}
     QString logFileName() const {return m_logFileName;}
-    void setOutputDest(int value) {m_outputDest = value;}
+    void setOutputDest(int value);
+    void setLogFileDir(const QString &fileDir) {m_logFileDir = fileDir;}
     void setLogFileName(const QString &fileName) {m_logFileName = fileName;}
+    void setLogFilePath(const QString &fileName, const QString &fileDir = ".");
+    QFile *logFile();
 
     void registerCategory(const char *category, QtMsgType severityLevel = QtDebugMsg);
     QStringList registeredCategories(void);
@@ -87,10 +92,14 @@ public :
 
 private:
     QAppLogging();
+    bool createLogFile();
 
     static QAtomicPointer<QAppLogging> s_instance;
     int m_outputDest;
+    QString m_logFileDir;
     QString m_logFileName;
+    quint32 m_maxFileSize;
+    QFile *m_logFile;
 
     QList<QAppCategoryOptions> _registeredCategories;
 };
