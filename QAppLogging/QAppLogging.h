@@ -39,8 +39,9 @@ struct QAppCategoryOptions {
 };
 
 class QFile;
+class FileRotationStrategy;
 
-class QAppLogging
+class QAppLogging : public QObject
 {
     Q_DISABLE_COPY(QAppLogging)
 
@@ -82,7 +83,9 @@ public :
     void setLogFileDir(const QString &fileDir) {m_logFileDir = fileDir;}
     void setLogFileName(const QString &fileName) {m_logFileName = fileName;}
     void setLogFilePath(const QString &fileName, const QString &fileDir = ".");
-    QFile *logFile();
+    void setLogFileMaxSize(const quint64 fileSize);
+    void setLogFileBackupCount(const int count);
+    void writeLogFile(const QString &message);
 
     void registerCategory(const char *category, QtMsgType severityLevel = QtDebugMsg);
     QStringList registeredCategories(void);
@@ -98,8 +101,10 @@ private:
     int m_outputDest;
     QString m_logFileDir;
     QString m_logFileName;
-    quint32 m_maxFileSize;
+    quint64 m_maxFileSize;
     QFile *m_logFile;
+    QTextStream *m_logStream;
+    FileRotationStrategy *m_fileRotationStrategy;
 
     QList<QAppCategoryOptions> _registeredCategories;
 };
